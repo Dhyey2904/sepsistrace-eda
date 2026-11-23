@@ -1,0 +1,10 @@
+artifacts/
+training_setA/
+training_setB/
+data/patients.parquet
+data/features/
+data/test_predictions.parquet
+.venv/
+__pycache__/
+*.pyc
+.DS_Store

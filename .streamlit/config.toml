@@ -1,0 +1,13 @@
+# Light theme matching the project figures (off-white background, terracotta accent).
+[theme]
+base = "light"
+primaryColor = "#C4705E"
+backgroundColor = "#FAF8F4"
+secondaryBackgroundColor = "#F0ECE4"
+textColor = "#2B2B2B"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

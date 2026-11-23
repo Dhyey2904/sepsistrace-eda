@@ -1,0 +1,113 @@
+# SepsisTRACE settings. Paths are relative to the project folder.
+seed: 42
+seeds: [42, 43, 44]
+paths:
+  raw: .                          # folder holding training_setA/ and training_setB/
+  parquet: data/patients.parquet
+  splits: data/splits.json
+  features: data/features
+  artifacts: artifacts
+  figures: figures
+  results: results
+  demo_patients: data/demo_patients.parquet
+  demo_predictions: data/demo_predictions.parquet
+  shap_cache: data/shap_cache.parquet
+data:
+  window_hours: 12
+  horizons: [1, 3, 6, 12]
+  min_history_hours: 3
+  label_shift_hours: 6
+  vitals: [HR, O2Sat, Temp, SBP, MAP, DBP, Resp, EtCO2]
+  labs_keep: [WBC, Lactate, Creatinine, Platelets, BUN, Bilirubin_total, Glucose, Hct]
+  statics: [Age, Gender, Unit1, Unit2, HospAdmTime, ICULOS]
+  rate_half_window: 6
+splits:
+  train: 0.70
+  val: 0.10
+  calib: 0.10
+  test: 0.10
+  internal_hospital: A
+  external_hospital: B
+quick:
+  enabled: false
+  n_patients: 2000
+io:
+  n_jobs: 4
+eda:
+  align_hours: 24
+  missingness_hours: 48
+  matched_caliper: 6
+  n_label_check: 20
+  trajectory_vars: [HR, Temp, MAP, O2Sat]
+  min_septic_with_window: 0.80
+  fallback_window_hours: 8
+models:
+  names: [lr, rf, xgb, mlp]
+  feature_sets: [V, M, VM]
+  lr:
+    max_iter: 2000
+    C: 1.0
+  rf:
+    n_estimators: 300
+    min_samples_leaf: 20
+    max_samples: null
+  xgb:
+    n_estimators: 400
+    max_depth: 5
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    eval_metric: aucpr
+    tree_method: hist
+  mlp:
+    hidden_layer_sizes: [64, 32]
+    early_stopping: true
+    max_iter: 200
+train:
+  # Rows of the training split used for fitting. null = all rows.
+  # Negatives are subsampled at the patient-hour level; positives are always kept.
+  max_train_rows: null
+  n_jobs: -1
+calibration:
+  method: isotonic
+  min_positives_isotonic: 50
+  ece_bins: 15
+grid:
+  n_jobs: 1
+shap:
+  n_background: 200
+  n_explain: 5000
+  additivity_tol: 1.0e-4
+demo:
+  n_septic_early: 8
+  n_septic_late: 5
+  n_quiet: 10
+  n_false_alarm: 5
+  n_heavy_missing: 2
+  early_lead_hours: 4
+  model: xgb
+  feature_set: VM
+  horizon: 6
+
+# Overrides for `python main.py <step> --quick` (2000-patient subset).
+# Outputs go to separate paths so quick runs never overwrite full results.
+quick_mode:
+  quick:
+    enabled: true
+    n_patients: 2000
+  paths:
+    splits: data/quick/splits.json
+    features: data/quick/features
+    artifacts: artifacts/quick
+    figures: figures/quick
+    results: results/quick
+    demo_patients: data/quick/demo_patients.parquet
+    demo_predictions: data/quick/demo_predictions.parquet
+    shap_cache: data/quick/shap_cache.parquet
+  models:
+    rf:
+      n_estimators: 100
+    xgb:
+      n_estimators: 200
+  shap:
+    n_explain: 1000
